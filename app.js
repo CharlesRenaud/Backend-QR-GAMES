@@ -14,7 +14,7 @@ const scriptRoutes = require('./routes/scripts');
 const app = express();
 
 // Connexion à la base de données MongoDB
-mongoose.connect(`mongodb+srv://crenaud:${process.env.DB_PASSWORD}@cluster0.clkijt6.mongodb.net/?retryWrites=true&w=majority`, {
+mongoose.connect(`mongodb+srv://crenaud:13ukSiHJlKzTDIDa@cluster0.clkijt6.mongodb.net/?retryWrites=true&w=majority`, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     keepAlive: true
