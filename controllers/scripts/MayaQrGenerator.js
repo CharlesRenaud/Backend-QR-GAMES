@@ -44,7 +44,7 @@ module.exports = async function MayaQrGenerator(gameId, scriptLinked) {
     await generateGameQrCodes(url, filePath);
   };
 
-  const urlPrefix = `http://192.168.1.57:3001/qr-checker`;
+  const urlPrefix = `https://qr-game.com/`;
 
   const generateGameQrPromises = [];
   for (let i = 1; i <= qrNumber; i++) {
