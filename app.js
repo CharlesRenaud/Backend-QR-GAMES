@@ -46,7 +46,10 @@ app.use('/api/game', userGames);
 // Configuration du dossier d'images pour Multer
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
-
+app.get('/api/', (req, res) => {
+    res.send('Hello, World Jeego API!');
+  });
+  
 
 // Exportation de l'application en tant que module
 module.exports = app;

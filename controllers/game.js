@@ -42,9 +42,13 @@ exports.createGame = (req, res, next) => {
         // Génération des QR codes pour ce jeu
         MayaQrGenerator(game._id, gameObject.scriptLinked);
         // Construction du tableau d'URLs vers les images QR
-        for (let i = 1; i <= 5; i++) {
-            game.qrImages.push(`${req.protocol}://${req.get('host')}/images/${game._id}/qr-${i}.svg`);
-    }}
+        for (let i = 1; i <= 4; i++) {
+            game.qrImages.push(`${req.protocol}://jeuqr.fr//images/${game._id}/qr-${i}.svg`);
+        }
+        game.qrImages.push(`${req.protocol}://jeuqr.fr//images/${game._id}/qr-affiche-1.svg`);
+        game.qrImages.push(`${req.protocol}://jeuqr.fr//images/${game._id}/qr-affiche-2.svg`);
+        game.qrImages.push(`${req.protocol}://jeuqr.fr//images/${game._id}/qr-flyers.svg`);
+}
     game.save()
         .then(() => {
             console.log('Jeu enregistré avec succès');
@@ -89,7 +93,8 @@ exports.modifyGames = (req, res, next) => {
                         res.status(400).json({ error });
                     });
             }
-        })
+            
+        })     
         .catch((error) => {
             console.error('Erreur lors de la recherche du jeu : ', error);
             res.status(400).json({ error });
