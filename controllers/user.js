@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
+const Game = require('../models/Game');
 const jwt = require('jsonwebtoken');
 
 // Inscription d'un nouvel utilisateur
@@ -94,94 +95,83 @@ exports.getAllUsers = (req, res, next) => {
 };
 
 // Met à jour les informations d'un utilisateur pour un jeu donné
-exports.updateUserGameInfo = (req, res, next) => {
-    const userId = req.params.userId;
-    const gameId = req.params.gameId;
-    const qrcode = req.body.qrcode;
+ exports.updateUserGameInfo = async (req, res, next) => {
+    try {
+        // Récupération des paramètres et du corps de la requête
+        const { userId, gameId } = req.params;
+        const { qrcode } = req.body;
 
-    User.findById(userId) // Recherche de l'utilisateur par son identifiant
-        .then(user => {
-            if (!user) {
-                return res.status(404).json({ error: 'Utilisateur non trouvé !' });
+        // Recherche de l'utilisateur par son identifiant
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ error: 'Utilisateur non trouvé !' });
+        }
+
+        // Recherche du jeu correspondant dans la liste des jeux de l'utilisateur
+        const gameIndex = user.games.findIndex(game => game.id.toString() === gameId);
+
+        // Si le jeu n'existe pas encore dans la liste des jeux de l'utilisateur, on le crée
+        if (gameIndex === -1) {
+            user.games.push({
+                id: gameId,
+                qrcodesFind: [qrcode],
+                playerAdvancement: false
+            });
+        } else {
+            // Si le jeu existe déjà, on récupère les informations du jeu
+            const game = user.games[gameIndex];
+
+            // Vérification si le qrcode existe déjà dans la liste des qrcodes trouvés pour le jeu donné
+            if (game.qrcodesFind.includes(qrcode)) {
+                return res.status(400).json({ error: 'QR code déjà trouvé pour ce jeu !' });
             }
-            // Recherche du jeu correspondant dans la liste des jeux de l'utilisateur
-            const gameIndex = user.games.findIndex(game => game.id.toString() === gameId);
-            if (gameIndex === -1) {
-                // Si le jeu n'existe pas encore dans la liste des jeux de l'utilisateur, on le crée
-                const newGame = {
-                    id: gameId,
-                    qrcodesFind: [qrcode],
-                    playerAdvancement: false // on met l'avancement à false car il faut au moins 2 QR codes pour compléter le jeu
-                };
-                user.games.push(newGame);
+
+            // Ajout du nouveau qrcode dans la liste des qrcodes trouvés pour le jeu donné
+            game.qrcodesFind.push(qrcode);
+
+            // Mise à jour de l'avancement de l'utilisateur pour le jeu donné
+            const isGameCompleted = game.qrcodesFind.length === game.id.nbQrCodes;
+            game.playerAdvancement = isGameCompleted;
+
+            // Recherche du jeu dans la base de données
+            const gameInDb = await Game.findById(gameId);
+            if (!gameInDb) {
+                return res.status(404).json({ error: 'Jeu non trouvé !' });
+            }
+
+            // Recherche de l'utilisateur dans la liste des joueurs pour le jeu donné
+            const playerIndex = gameInDb.players.findIndex(player => player.id.toString() === userId);
+
+            // Si l'utilisateur n'existe pas encore dans la liste des joueurs pour le jeu donné, on l'ajoute
+            if (playerIndex === -1) {
+                gameInDb.players.push({
+                    id: userId,
+                    qrcodesFind: game.qrcodesFind
+                });
             } else {
-                // Si le jeu existe déjà dans la liste des jeux de l'utilisateur
-                // Vérification si le qrcode existe déjà dans la liste des qrcodes trouvés pour le jeu donné
-                if (user.games[gameIndex].qrcodesFind.includes(qrcode)) {
-                    return res.status(400).json({ error: 'QR code déjà trouvé pour ce jeu !' });
-                }
-                // Ajout du nouveau qrcode dans la liste des qrcodes trouvés pour le jeu donné
-                user.games[gameIndex].qrcodesFind.push(qrcode);
-                // Mise à jour de l'avancement de l'utilisateur pour le jeu donné
-                const nbQrCodes = user.games[gameIndex].id.nbQrCodes;
-                const nbQrCodesFound = user.games[gameIndex].qrcodesFind.length;
-                const isGameCompleted = nbQrCodesFound === nbQrCodes;
-                user.games[gameIndex].playerAdvancement = isGameCompleted;
-                // Si le jeu est complété, on l'ajoute à la liste des jeux terminés pour l'utilisateur
-                if (isGameCompleted) {
-                    Game.findByIdAndUpdate(gameId, { $push: { playersTermines: user._id } })
-                        .then(() => {
-                            // Mise à jour des informations de l'utilisateur dans la liste des joueurs pour le jeu donné
-                            const playerIndex = req.game.players.findIndex(player => player.id.toString() === user._id.toString());
-                            if (playerIndex === -1) {
-                                // Si l'utilisateur n'existe pas encore dans la liste des joueurs pour le jeu donné, on l'ajoute
-                                const newPlayer = {
-                                    id: user._id,
-                                    qrcodesFind: user.games[gameIndex].qrcodesFind
-                                };
-                                req.game.players.push(newPlayer);
-                            } else {
-                                // Si l'utilisateur existe déjà dans la liste des joueurs pour le jeu donné, on met à jour sa liste de QR codes trouvés
-                                req.game.players[playerIndex].qrcodesFind = user.games[gameIndex].qrcodesFind;
-                            }
-                            req.game.save() // sauvegarde du jeu mis à jour dans la base de données
-                                .then(() => res.status(200).json({
-                                    message: 'Informations utilisateur mises à jour avec succès !'
-                                }))
-                                .catch(error => res.status(500).json({ error }));
-                        })
-                        .catch(error => res.status(500).json({ error }));
-                } else {
-                    // Si le jeu n'est pas complété, on met à jour uniquement les informations de l'utilisateur
-                    Game.findById(gameId)
-                        .then(game => {
-                            // Recherche de l'utilisateur dans la liste des joueurs pour le jeu donné
-                            const playerIndex = game.players.findIndex(player => player.id.toString() === user._id.toString());
-                            if (playerIndex === -1) {
-                                // Si l'utilisateur n'existe pas encore dans la liste des joueurs pour le jeu donné, on l'ajoute
-                                const newPlayer = {
-                                    id: user._id,
-                                    qrcodesFind: user.games[gameIndex].qrcodesFind
-                                };
-                                game.players.push(newPlayer);
-                            } else {
-                                // Si l'utilisateur existe déjà dans la liste des joueurs pour le jeu donné, on met à jour sa liste de QR codes trouvés
-                                game.players[playerIndex].qrcodesFind = user.games[gameIndex].qrcodesFind;
-                            }
-                            game.save() // sauvegarde du jeu mis à jour dans la base de données
-                                .then(() => res.status(200).json({
-                                    message: 'Informations utilisateur mises à jour avec succès !'
-                                }))
-                                .catch(error => res.status(500).json({ error }));
-                        })
-                        .catch(error => res.status(500).json({ error }));
-                }
+                // Si l'utilisateur existe déjà, on met à jour sa liste de QR codes trouvés
+                gameInDb.players[playerIndex].qrcodesFind = game.qrcodesFind;
             }
-            // Sauvegarde des modifications de l'utilisateur dans la base de données
-            user.save()
-                .then(() => { })
-                .catch(error => res.status(500).json({ error }));
-        })
-        .catch(error => res.status(500).json({ error }));
+
+            // Si le jeu est complété, on l'ajoute à la liste des jeux terminés pour l'utilisateur
+            if (isGameCompleted) {
+                gameInDb.playersTermines.push(userId);
+            }
+
+            // Sauvegarde du jeu mis à jour dans la base de données
+            await gameInDb.save();
+        }
+
+        // Sauvegarde des modifications de l'utilisateur dans la base de données
+        await user.save();
+
+        // Envoi de la réponse au client
+        return res.status(200).json({
+            message: 'Informations utilisateur mises à jour avec succès !'
+        });
+    } catch (error) {
+        // Gestion des erreurs
+        return res.status(500).json({ error });
+    }
 };
 

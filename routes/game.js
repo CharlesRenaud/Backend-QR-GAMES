@@ -14,7 +14,7 @@ router.get('/', auth, gameCtrl.getAllGames);
 // Définition d'une route pour créer un jeu
 router.post('/', auth, multer, gameCtrl.createGame);
 // Définition d'une route pour obtenir un jeu spécifique
-router.get('/:id', auth, gameCtrl.getOneGame);
+router.get('/:id', gameCtrl.getOneGame);
 // Définition d'une route pour modifier un jeu
 router.put('/:id', auth, multer, gameCtrl.modifyGames);
 // Définition d'une route pour supprimer un jeu
