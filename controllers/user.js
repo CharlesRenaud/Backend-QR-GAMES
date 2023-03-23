@@ -147,6 +147,7 @@ exports.getAllUsers = (req, res, next) => {
         });
     } catch (error) {
         // Gestion des erreurs
+        console.log(error)
         return res.status(500).json({ error });
     }
 };
