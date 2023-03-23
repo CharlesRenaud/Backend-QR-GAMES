@@ -18,7 +18,7 @@ exports.signup = (req, res, next) => {
         .catch(error => res.status(500).json({ error }));
 };
 
-// Connexion d'un utilisateur existant
+
 exports.login = (req, res, next) => {
     User.findOne({ email: req.body.email }) // Recherche de l'utilisateur par email
         .then(user => {
@@ -30,19 +30,30 @@ exports.login = (req, res, next) => {
                     if (!valid) { // si les mots de passe ne correspondent pas
                         return res.status(401).json({ error: 'Mot de passe incorrect !' });
                     }
-                    res.status(200).json({
-                        userId: user._id,
-                        token: jwt.sign( // génération d'un token d'authentification
-                            { userId: user._id },
-                            'RANDOM_TOKEN_SECRET',
-                            { expiresIn: '24h' }
-                        )
-                    });
+                    User.findById(user._id) // Récupération des informations de l'utilisateur
+                        .then(user => {
+                            res.status(200).json({
+                                userId: user._id,
+                                token: jwt.sign( // génération d'un token d'authentification
+                                    { userId: user._id },
+                                    'RANDOM_TOKEN_SECRET',
+                                    { expiresIn: '24h' }
+                                ),
+                                user: {
+                                    _id: user._id,
+                                    email: user.email,
+                                    isAdmin: user.isAdmin,
+                                    games: user.games
+                                }
+                            });
+                        })
+                        .catch(error => res.status(500).json({ error }));
                 })
                 .catch(error => res.status(500).json({ error }));
         })
         .catch(error => res.status(500).json({ error }));
 };
+
 
 // Vérification du token d'authentification
 exports.verifyToken = (req, res, next) => {
