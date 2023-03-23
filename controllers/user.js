@@ -1,6 +1,5 @@
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
-const Game = require('../models/Game');
 const jwt = require('jsonwebtoken');
 
 // Inscription d'un nouvel utilisateur
@@ -94,6 +93,8 @@ exports.getAllUsers = (req, res, next) => {
         .catch(error => res.status(500).json({ error }));
 };
 
+
+
 // Met à jour les informations d'un utilisateur pour un jeu donné
  exports.updateUserGameInfo = async (req, res, next) => {
     try {
@@ -174,4 +175,3 @@ exports.getAllUsers = (req, res, next) => {
         return res.status(500).json({ error });
     }
 };
-
