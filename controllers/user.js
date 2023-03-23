@@ -122,10 +122,11 @@ exports.updateUserGameInfo = async (req, res, next) => {
         console.log(gameId, userId, qrCode)
 
         // Recherche de l'utilisateur par son identifiant
-        const user = await User.findById(userId);
+        const user = await User.findByIdAndUpdate(userId, {}, {new: true, upsert: true});
         if (!user) {
-            return res.status(404).json({ error: 'Utilisateur non trouvé !' });
+          return res.status(404).json({ error: 'Utilisateur non trouvé !' });
         }
+        
         console.log(user);
         // Recherche du jeu correspondant dans la liste des jeux de l'utilisateur
         const game = user.games.find(game => game.id.toString() === gameId);
