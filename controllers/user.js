@@ -114,12 +114,12 @@ exports.getAllUsers = (req, res, next) => {
 
 
 // Met à jour les informations d'un utilisateur pour un jeu donné
-exports.updateUserGameInfo = async (req, res, next) => {
+ exports.updateUserGameInfo = async (req, res, next) => {
     try {
         // Récupération des paramètres et du corps de la requête
-        const { gameId, userId, qrCode } = req.body;
+        const { gameId, userId, qrCode} = req.body;
 
-        console.log(gameId, userId, qrCode);
+        console.log(gameId, userId, qrCode)
 
         // Recherche de l'utilisateur par son identifiant
         const user = await User.findById(userId);
@@ -127,21 +127,22 @@ exports.updateUserGameInfo = async (req, res, next) => {
             return res.status(404).json({ error: 'Utilisateur non trouvé !' });
         }
         console.log(user);
-        
         // Recherche du jeu correspondant dans la liste des jeux de l'utilisateur
-        const game = user.games.get(gameId);
-        console.log(gameId)
-        
+        const gameIndex = user.games.findIndex(game => game.id.toString() === gameId);
+        console.log(gameIndex);
+
         // Si le jeu n'existe pas encore dans la liste des jeux de l'utilisateur, on le crée
-        if (!game) {
-            user.games[gameId] = {
+        if (gameIndex === -1) {
+            user.games.push({
+                id: gameId,
                 qrcodesFind: [qrCode.toString()],
                 playerAdvancement: false
-            };
-            console.log("Initialisation du jeu pour la première fois");
+            });
+            console.log("Initialisation du jeu pour la première foi")
         } else {
             // Si le jeu existe déjà, on récupère les informations du jeu
-            console.log(game);
+            const game = user.games[gameIndex];
+            console.log(game)
 
             // Vérification si le qrcode existe déjà dans la liste des qrcodes trouvés pour le jeu donné
             if (game.qrcodesFind.includes(qrCode)) {
@@ -150,7 +151,7 @@ exports.updateUserGameInfo = async (req, res, next) => {
 
             // Ajout du nouveau qrcode dans la liste des qrcodes trouvés pour le jeu donné
             game.qrcodesFind.push(qrCode);
-            console.log(game.qrcodesFind);
+            console.log(game.qrcodesFind)
 
             // Mise à jour de l'avancement de l'utilisateur pour le jeu donné
             const isGameCompleted = game.qrcodesFind.length === game.id.nbQrCodes;
@@ -166,7 +167,7 @@ exports.updateUserGameInfo = async (req, res, next) => {
         });
     } catch (error) {
         // Gestion des erreurs
-        console.log(error);
+        console.log(error)
         return res.status(500).json({ error });
     }
 };

@@ -13,12 +13,12 @@ const userSchema = mongoose.Schema({
   // Le statut administrateur est défini par défaut à false
   isAdmin: { type: Boolean, default: false },
   // La liste des jeux auxquels l'utilisateur est inscrit
-  games: {
-    [String]: {
-        qrcodesFind: [{ type: String }],
-        playerAdvancement: { type: Boolean }
-      }
-  } 
+  games: [{
+    id: { type: mongoose.Schema.Types.ObjectId, ref: 'Game' },
+    qrcodesFind: [{ type: String }],
+    playerAdvancement: { type: Boolean},
+  }],
+
 });
 
 // Application du plugin de vérification de unicité à notre schéma
