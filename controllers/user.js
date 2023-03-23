@@ -129,7 +129,8 @@ exports.getAllUsers = (req, res, next) => {
         console.log(user);
         // Recherche du jeu correspondant dans la liste des jeux de l'utilisateur
         const gameIndex = user.games.findIndex(game => game.id.toString() === gameId);
-        console.log(gameIndex);
+        
+        gameIndex ? console.log(gameIndex) : null ;
 
         // Si le jeu n'existe pas encore dans la liste des jeux de l'utilisateur, on le crée
         if (gameIndex === -1) {
