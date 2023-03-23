@@ -63,11 +63,11 @@ exports.verifyToken = (req, res, next) => {
                         _id: user._id,
                         email: user.email,
                         isAdmin: user.isAdmin,
-                        games: [{
-                            id: user.games._id,
-                            qrcodesFind: user.games.qrcodesFind,
-                            playerAdvancement: user.games.playerAdvancement,
-                          }]
+                        games: Array.from(user.games.entries()).map(([id, game]) => ({
+                            id,
+                            qrcodesFind: game.qrcodesFind,
+                            playerAdvancement: game.playerAdvancement
+                          }))
                     }
                 });
             })
@@ -90,11 +90,11 @@ exports.getUser = (req, res, next) => {
                     _id: user._id,
                     email: user.email,
                     isAdmin: user.isAdmin,
-                    games: [{
-                        id: user.games._id,
-                        qrcodesFind: user.games.qrcodesFind,
-                        playerAdvancement: user.games.playerAdvancement,
-                      }]
+                    games: Array.from(user.games.entries()).map(([id, game]) => ({
+                        id,
+                        qrcodesFind: game.qrcodesFind,
+                        playerAdvancement: game.playerAdvancement
+                      }))
                 }
             });
         })
@@ -111,11 +111,11 @@ exports.getAllUsers = (req, res, next) => {
                         _id: user._id,
                         email: user.email,
                         isAdmin: user.isAdmin,
-                        games: [{
-                            id: user.games._id,
-                            qrcodesFind: user.games.qrcodesFind,
-                            playerAdvancement: user.games.playerAdvancement,
-                          }]
+                        games: Array.from(user.games.entries()).map(([id, game]) => ({
+                            id,
+                            qrcodesFind: game.qrcodesFind,
+                            playerAdvancement: game.playerAdvancement
+                          }))
                     };
                 })
             });
@@ -126,12 +126,12 @@ exports.getAllUsers = (req, res, next) => {
 
 
 // Met à jour les informations d'un utilisateur pour un jeu donné
- exports.updateUserGameInfo = async (req, res, next) => {
+exports.updateUserGameInfo = async (req, res, next) => {
     try {
         // Récupération des paramètres et du corps de la requête
-        const { gameId, userId, qrCode} = req.body;
+        const { gameId, userId, qrCode } = req.body;
 
-        console.log(gameId, userId, qrCode)
+        console.log(gameId, userId, qrCode);
 
         // Recherche de l'utilisateur par son identifiant
         const user = await User.findById(userId);
@@ -139,22 +139,20 @@ exports.getAllUsers = (req, res, next) => {
             return res.status(404).json({ error: 'Utilisateur non trouvé !' });
         }
         console.log(user);
+        
         // Recherche du jeu correspondant dans la liste des jeux de l'utilisateur
-        const gameIndex = user.games.findIndex(game => game.id.toString() === gameId);
-        console.log(gameIndex);
-
+        const game = user.games.get(gameId);
+        
         // Si le jeu n'existe pas encore dans la liste des jeux de l'utilisateur, on le crée
-        if (gameIndex === -1) {
-            user.games.push({
-                id: gameId,
+        if (!game) {
+            user.games.set(gameId, {
                 qrcodesFind: [qrCode.toString()],
                 playerAdvancement: false
             });
-            console.log("Initialisation du jeu pour la première foi")
+            console.log("Initialisation du jeu pour la première fois");
         } else {
             // Si le jeu existe déjà, on récupère les informations du jeu
-            const game = user.games[gameIndex];
-            console.log(game)
+            console.log(game);
 
             // Vérification si le qrcode existe déjà dans la liste des qrcodes trouvés pour le jeu donné
             if (game.qrcodesFind.includes(qrCode)) {
@@ -163,7 +161,7 @@ exports.getAllUsers = (req, res, next) => {
 
             // Ajout du nouveau qrcode dans la liste des qrcodes trouvés pour le jeu donné
             game.qrcodesFind.push(qrCode);
-            console.log(game.qrcodesFind)
+            console.log(game.qrcodesFind);
 
             // Mise à jour de l'avancement de l'utilisateur pour le jeu donné
             const isGameCompleted = game.qrcodesFind.length === game.id.nbQrCodes;
@@ -179,7 +177,7 @@ exports.getAllUsers = (req, res, next) => {
         });
     } catch (error) {
         // Gestion des erreurs
-        console.log(error)
+        console.log(error);
         return res.status(500).json({ error });
     }
 };
