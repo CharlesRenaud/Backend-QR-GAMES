@@ -63,11 +63,7 @@ exports.verifyToken = (req, res, next) => {
                         _id: user._id,
                         email: user.email,
                         isAdmin: user.isAdmin,
-                        games: Array.from(user.games.entries()).map(([id, game]) => ({
-                            id,
-                            qrcodesFind: game.qrcodesFind,
-                            playerAdvancement: game.playerAdvancement
-                          }))
+                        games: user.games
                     }
                 });
             })
@@ -90,11 +86,7 @@ exports.getUser = (req, res, next) => {
                     _id: user._id,
                     email: user.email,
                     isAdmin: user.isAdmin,
-                    games: Array.from(user.games.entries()).map(([id, game]) => ({
-                        id,
-                        qrcodesFind: game.qrcodesFind,
-                        playerAdvancement: game.playerAdvancement
-                      }))
+                    games: user.games
                 }
             });
         })
@@ -111,11 +103,7 @@ exports.getAllUsers = (req, res, next) => {
                         _id: user._id,
                         email: user.email,
                         isAdmin: user.isAdmin,
-                        games: Array.from(user.games.entries()).map(([id, game]) => ({
-                            id,
-                            qrcodesFind: game.qrcodesFind,
-                            playerAdvancement: game.playerAdvancement
-                          }))
+                        games: user.games
                     };
                 })
             });
