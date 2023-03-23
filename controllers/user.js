@@ -128,7 +128,7 @@ exports.getAllUsers = (req, res, next) => {
         }
         console.log(user);
         // Recherche du jeu correspondant dans la liste des jeux de l'utilisateur
-        const gameIndex = user.games.findIndex(game => game._id === gameId);
+        const gameIndex = user.games.findIndex(game => game.id === gameId);
         
         gameIndex ? console.log(gameIndex) : null ;
 
