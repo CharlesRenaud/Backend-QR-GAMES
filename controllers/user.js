@@ -127,12 +127,12 @@ exports.getAllUsers = (req, res, next) => {
             console.log(game)
 
             // Vérification si le qrcode existe déjà dans la liste des qrcodes trouvés pour le jeu donné
-            if (game.qrcodesFind.includes(qrcode)) {
+            if (game.qrcodesFind.includes(qrCode)) {
                 return res.status(400).json({ error: 'QR code déjà trouvé pour ce jeu !' });
             }
 
             // Ajout du nouveau qrcode dans la liste des qrcodes trouvés pour le jeu donné
-            game.qrcodesFind.push(qrcode);
+            game.qrcodesFind.push(qrCode);
             console.log(game.qrcodesFind)
 
             // Mise à jour de l'avancement de l'utilisateur pour le jeu donné
