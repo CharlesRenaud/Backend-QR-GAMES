@@ -106,9 +106,10 @@ exports.getAllUsers = (req, res, next) => {
         if (!user) {
             return res.status(404).json({ error: 'Utilisateur non trouvé !' });
         }
-
+        console.log(user);
         // Recherche du jeu correspondant dans la liste des jeux de l'utilisateur
         const gameIndex = user.games.findIndex(game => game.id.toString() === gameId);
+        console.log(gameIndex);
 
         // Si le jeu n'existe pas encore dans la liste des jeux de l'utilisateur, on le crée
         if (gameIndex === -1) {
@@ -117,9 +118,11 @@ exports.getAllUsers = (req, res, next) => {
                 qrcodesFind: [qrcode],
                 playerAdvancement: false
             });
+            console.log("Initialisation du jeu pour la première foi")
         } else {
             // Si le jeu existe déjà, on récupère les informations du jeu
             const game = user.games[gameIndex];
+            console.log(game)
 
             // Vérification si le qrcode existe déjà dans la liste des qrcodes trouvés pour le jeu donné
             if (game.qrcodesFind.includes(qrcode)) {
@@ -128,38 +131,11 @@ exports.getAllUsers = (req, res, next) => {
 
             // Ajout du nouveau qrcode dans la liste des qrcodes trouvés pour le jeu donné
             game.qrcodesFind.push(qrcode);
+            console.log(game.qrcodesFind)
 
             // Mise à jour de l'avancement de l'utilisateur pour le jeu donné
             const isGameCompleted = game.qrcodesFind.length === game.id.nbQrCodes;
             game.playerAdvancement = isGameCompleted;
-
-            // Recherche du jeu dans la base de données
-            const gameInDb = await Game.findById(gameId);
-            if (!gameInDb) {
-                return res.status(404).json({ error: 'Jeu non trouvé !' });
-            }
-
-            // Recherche de l'utilisateur dans la liste des joueurs pour le jeu donné
-            const playerIndex = gameInDb.players.findIndex(player => player.id.toString() === userId);
-
-            // Si l'utilisateur n'existe pas encore dans la liste des joueurs pour le jeu donné, on l'ajoute
-            if (playerIndex === -1) {
-                gameInDb.players.push({
-                    id: userId,
-                    qrcodesFind: game.qrcodesFind
-                });
-            } else {
-                // Si l'utilisateur existe déjà, on met à jour sa liste de QR codes trouvés
-                gameInDb.players[playerIndex].qrcodesFind = game.qrcodesFind;
-            }
-
-            // Si le jeu est complété, on l'ajoute à la liste des jeux terminés pour l'utilisateur
-            if (isGameCompleted) {
-                gameInDb.playersTermines.push(userId);
-            }
-
-            // Sauvegarde du jeu mis à jour dans la base de données
-            await gameInDb.save();
         }
 
         // Sauvegarde des modifications de l'utilisateur dans la base de données
