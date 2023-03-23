@@ -50,13 +50,33 @@ exports.verifyToken = (req, res, next) => {
     try {
         const decoded = jwt.verify(token, 'RANDOM_TOKEN_SECRET'); // vérification du token
         req.userData = { userId: decoded.userId };
-        res.status(200).json({
-            message: 'Token valide'
-        });
+        // Récupération des informations de l'utilisateur
+        User.findById(req.userData.userId)
+            .then(user => {
+                if (!user) {
+                    return res.status(401).json({ error: 'Utilisateur non trouvé !' });
+                }
+                // Envoi des informations de l'utilisateur en plus de la validation du token
+                res.status(200).json({
+                    message: 'Token valide',
+                    user: {
+                        _id: user._id,
+                        email: user.email,
+                        isAdmin: user.isAdmin,
+                        games: [{
+                            id: user.games._id,
+                            qrcodesFind: user.games.qrcodesFind,
+                            playerAdvancement: user.games.playerAdvancement,
+                          }]
+                    }
+                });
+            })
+            .catch(error => res.status(500).json({ error }));
     } catch (error) { // si le token n'est pas valide
         return res.status(401).json({ error: 'Token non valide' });
     }
 };
+
 
 // Récupère un utilisateur en fonction de son identifiant
 exports.getUser = (req, res, next) => {
@@ -69,7 +89,12 @@ exports.getUser = (req, res, next) => {
                 user: {
                     _id: user._id,
                     email: user.email,
-                    isAdmin: user.isAdmin
+                    isAdmin: user.isAdmin,
+                    games: [{
+                        id: user.games._id,
+                        qrcodesFind: user.games.qrcodesFind,
+                        playerAdvancement: user.games.playerAdvancement,
+                      }]
                 }
             });
         })
@@ -85,7 +110,12 @@ exports.getAllUsers = (req, res, next) => {
                     return {
                         _id: user._id,
                         email: user.email,
-                        isAdmin: user.isAdmin
+                        isAdmin: user.isAdmin,
+                        games: [{
+                            id: user.games._id,
+                            qrcodesFind: user.games.qrcodesFind,
+                            playerAdvancement: user.games.playerAdvancement,
+                          }]
                     };
                 })
             });
