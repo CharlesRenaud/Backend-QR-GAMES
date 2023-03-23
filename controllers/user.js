@@ -130,13 +130,14 @@ exports.updateUserGameInfo = async (req, res, next) => {
         
         // Recherche du jeu correspondant dans la liste des jeux de l'utilisateur
         const game = user.games.get(gameId);
+        console.log(gameId)
         
         // Si le jeu n'existe pas encore dans la liste des jeux de l'utilisateur, on le crée
         if (!game) {
-            user.games.set(gameId, {
+            user.games[gameId] = {
                 qrcodesFind: [qrCode.toString()],
                 playerAdvancement: false
-            });
+            };
             console.log("Initialisation du jeu pour la première fois");
         } else {
             // Si le jeu existe déjà, on récupère les informations du jeu
