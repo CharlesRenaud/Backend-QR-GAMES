@@ -99,8 +99,7 @@ exports.getAllUsers = (req, res, next) => {
  exports.updateUserGameInfo = async (req, res, next) => {
     try {
         // Récupération des paramètres et du corps de la requête
-        const { userId, gameId } = req.params;
-        const { qrcode } = req.body;
+        const { userId, gameId, qrcode} = req.body;
 
         // Recherche de l'utilisateur par son identifiant
         const user = await User.findById(userId);
