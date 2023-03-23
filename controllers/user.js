@@ -99,9 +99,9 @@ exports.getAllUsers = (req, res, next) => {
  exports.updateUserGameInfo = async (req, res, next) => {
     try {
         // Récupération des paramètres et du corps de la requête
-        const { gameId, userId, qrcode} = req.body;
+        const { gameId, userId, qrCode} = req.body;
 
-        console.log(gameId, userId, qrcode)
+        console.log(gameId, userId, qrCode)
 
         // Recherche de l'utilisateur par son identifiant
         const user = await User.findById(userId);
@@ -117,7 +117,7 @@ exports.getAllUsers = (req, res, next) => {
         if (gameIndex === -1) {
             user.games.push({
                 id: gameId,
-                qrcodesFind: [qrcode],
+                qrcodesFind: [qrCode],
                 playerAdvancement: false
             });
             console.log("Initialisation du jeu pour la première foi")
