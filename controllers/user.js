@@ -117,7 +117,7 @@ exports.getAllUsers = (req, res, next) => {
         if (gameIndex === -1) {
             user.games.push({
                 id: gameId,
-                qrcodesFind: [].push(qrCode),
+                qrcodesFind: [qrCode.toString()],
                 playerAdvancement: false
             });
             console.log("Initialisation du jeu pour la première foi")
