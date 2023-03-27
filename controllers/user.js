@@ -171,8 +171,10 @@ exports.updateUserGameInfo = async (req, res, next) => {
 
         // Envoi de la réponse au client
         return res.status(200).json({
-            message: 'Informations utilisateur mises à jour avec succès !'
+            message: 'Informations utilisateur mises à jour avec succès !',
+            user: user
         });
+        
     } catch (error) {
         // Gestion des erreurs
         console.log(error)
