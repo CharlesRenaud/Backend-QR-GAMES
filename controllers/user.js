@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
+const Game = require('../models/game');
 const jwt = require('jsonwebtoken');
 
 // Inscription d'un nouvel utilisateur
@@ -161,10 +162,29 @@ exports.updateUserGameInfo = async (req, res, next) => {
             game.qrcodesFind.push(qrCode);
             console.log(game.qrcodesFind)
 
-            // Mise à jour de l'avancement de l'utilisateur pour le jeu donné
-            const isGameCompleted = game.qrcodesFind.length === game.id.nbQrCodes;
-            game.playerAdvancement = isGameCompleted;
+            // Si l'utilisateur a les 4 QrCodes du jeu alors passer son avancement en true;
+            if (game.qrcodesFind.length === 4) {
+                game.playerAdvancement = true;
+            }
         }
+
+          // Mise à jour de la liste des joueurs pour le jeu donné
+          const gameDoc = await Game.findById(gameId);
+          const playerIndex = gameDoc.players.findIndex(player => player.id.toString() === userId);
+          if (playerIndex === -1) {
+            // Si l'utilisateur n'est pas encore dans la liste des joueurs, on l'ajoute
+            gameDoc.players.push({
+              id: userId,
+              qrcodesFind: [qrCode],
+            });
+          } else {
+            // Si l'utilisateur est déjà dans la liste des joueurs, on met à jour sa liste de QR codes trouvés
+            const player = gameDoc.players[playerIndex];
+            if (!player.qrcodesFind.includes(qrCode)) {
+              player.qrcodesFind.push(qrCode);
+            }
+          }
+          await gameDoc.save();
 
         // Sauvegarde des modifications de l'utilisateur dans la base de données
         await user.save();
