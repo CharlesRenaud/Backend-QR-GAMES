@@ -200,7 +200,15 @@ exports.getOneRandomWinner = (req, res, next) => {
                 const formatter = new Intl.DateTimeFormat('fr-FR', options);
                 const formattedDate = formatter.format(new Date());
                 console.log("Formatted date:", formattedDate);
-                const parsedDate = new Date(Date.parse(formattedDate));
+                const utcDate = Date.UTC(
+                    new Date().getFullYear(),
+                    new Date().getMonth(),
+                    new Date().getDate(),
+                    new Date().getHours(),
+                    new Date().getMinutes(),
+                    new Date().getSeconds()
+                );
+                const parsedDate = new Date(utcDate);
                 console.log("Parsed date:", parsedDate);
                 game.playersRandomWinner.push({ id: winner._id, date: parsedDate });
                 
