@@ -25,7 +25,7 @@ router.get('/:gameId/:mediaId', auth, gameCtrl.getZip);
 router.post('/:gameId/random/winner', auth, gameCtrl.getOneRandomWinner);
 
 // Définition d'une route pour incrémenter la source (Flyers/Affiche)
-router.post('/:gameId/source/increment', gameCtrl.incrementSource);
+router.post('/:gameId/source/tracker/increment', gameCtrl.incrementSource);
 
 // Exportation du routeur pour les jeux
 module.exports = router;

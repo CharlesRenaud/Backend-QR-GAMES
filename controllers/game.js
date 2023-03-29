@@ -228,17 +228,17 @@ exports.incrementSource = async (req, res, next) => {
       if (existingSource) {
         existingSource.sourceCount++;
       } else {
-        // Sinon, ajoute la nouvelle source au tableau visitors
+        // Sinon, ajoute la nouvelle source au tableau visitors avec un compteur à 1
         game.visitors.push({ sourceName, sourceCount: 1 });
       }
       
       // Sauvegarde du jeu mis à jour dans la base de données
       await game.save();
       
-      res.status(200).json({ message: 'Source incrémenté avec succès.' });
+      res.status(200).json({ message: 'Source incrémentée avec succès.' });
     } catch (error) {
       res.status(500).json({ message: "Erreur lors de l'incrémentation de la source." });
     }
-  }
+}
 
   
