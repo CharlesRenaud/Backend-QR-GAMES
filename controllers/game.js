@@ -174,3 +174,17 @@ exports.getZip = (req, res, next) => {
   };
   
   
+// Récupération d'un gagnant parmi les joueurs ayant terminé le jeu
+exports.getOneRandomWinner = (req, res, next) => {
+    // Recherche du jeu par son identifiant (ID)
+    Game.findOne({ _id: req.params.id })
+      .populate('playersTermines')
+      .then(game => {
+        // Tirage aléatoire d'un joueur parmi les joueurs ayant terminé le jeu
+        const winner = game.playersTermines[Math.floor(Math.random() * game.playersTermines.length)];
+  
+        res.status(200).json({ winner });
+      })
+      .catch(error => res.status(404).json({ error }));
+  };
+  
