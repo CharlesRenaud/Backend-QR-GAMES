@@ -49,7 +49,7 @@ exports.createGame = (req, res, next) => {
         game.qrImages.push(`${req.protocol}://jeuqr.fr//images/${game._id}/qr-affiche-1.svg`);
         game.qrImages.push(`${req.protocol}://jeuqr.fr//images/${game._id}/qr-affiche-2.svg`);
         game.qrImages.push(`${req.protocol}://jeuqr.fr//images/${game._id}/qr-flyers.svg`);
-}
+    }
     game.save()
         .then(() => {
             console.log('Jeu enregistré avec succès');
@@ -66,7 +66,7 @@ exports.modifyGames = (req, res, next) => {
     console.log('Requête reçue pour modifier un jeu');
     let gameObject = { ...req.body };
     if (req.file) {
-        gameObject.imageUrl = `${ req.protocol }://${req.get('host')}/images/${req.file.filename}`;
+        gameObject.imageUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
     }
     // Suppression de l'identifiant de l'utilisateur
     delete gameObject._userId;
@@ -80,7 +80,7 @@ exports.modifyGames = (req, res, next) => {
             if (!req.auth.userId) {
                 console.error("L'identifiant de l'utilisateur n'est pas défini");
                 res.status(400).json({ message: "L'identifiant de l'utilisateur n'est pas défini" });
-            } else if ((game.userId !== req.auth.userId) && (req.auth.isAdmin === false) ) {
+            } else if ((game.userId !== req.auth.userId) && (req.auth.isAdmin === false)) {
                 console.error("Accès non autorisé : l'identifiant de l'utilisateur dans la requête", req.auth.userId, "ne correspond pas à l'identifiant de l'utilisateur du jeu", game.userId);
                 res.status(401).json({ message: 'Accès non autorisé' });
             } else {
@@ -94,8 +94,8 @@ exports.modifyGames = (req, res, next) => {
                         res.status(400).json({ error });
                     });
             }
-            
-        })     
+
+        })
         .catch((error) => {
             console.error('Erreur lors de la recherche du jeu : ', error);
             res.status(400).json({ error });
@@ -115,14 +115,14 @@ exports.deleteGame = (req, res, next) => {
                         .then(() => res.status(200).json({ message: "Jeu supprimé" }))
                         .catch((error) => res.status(400).json({ error }));
                 });
-            }else if (game.qrImages) {
+            } else if (game.qrImages) {
                 fs.rmdir(`images/${req.params.id}`, { recursive: true }, (error) => {
                     if (error) return res.status(500).json({ error });
                     Game.deleteOne({ _id: req.params.id })
                         .then(() => res.status(200).json({ message: "Dossier d'images QR supprimé" }))
                         .catch((error) => res.status(400).json({ error }));
                 });
-            } 
+            }
             else {
                 Game.deleteOne({ _id: req.params.id })
                     .then(() => res.status(200).json({ message: "Jeu supprimé" }))
@@ -153,63 +153,75 @@ exports.getZip = (req, res, next) => {
     const mediaId = req.params.mediaId;
     const filePath = path.resolve(__dirname, '../images', gameId, `${mediaId}.zip`);
     console.log(filePath);
-  
+
     fs.readFile(filePath, (err, data) => {
-      if (err) {
-        console.error(err);
-        res.status(500).send('Une erreur est survenue lors du téléchargement du fichier');
-      } else {
-        const zip = new JSZip();
-        zip.loadAsync(data).then(() => {
-          zip.generateAsync({ type: 'nodebuffer' }).then((buffer) => {
-            res.set({
-              'Content-Type': 'application/zip',
-              'Content-Disposition': `attachment; filename="${mediaId}.zip"`
+        if (err) {
+            console.error(err);
+            res.status(500).send('Une erreur est survenue lors du téléchargement du fichier');
+        } else {
+            const zip = new JSZip();
+            zip.loadAsync(data).then(() => {
+                zip.generateAsync({ type: 'nodebuffer' }).then((buffer) => {
+                    res.set({
+                        'Content-Type': 'application/zip',
+                        'Content-Disposition': `attachment; filename="${mediaId}.zip"`
+                    });
+                    console.log(buffer);
+                    res.send(buffer);
+                });
             });
-            console.log(buffer);
-            res.send(buffer);
-          });
-        });
-      }
+        }
     });
-  };
-  
-  
+};
+
+
 // Récupération d'un gagnant parmi les joueurs ayant terminé le jeu
 exports.getOneRandomWinner = (req, res, next) => {
     // Recherche du jeu par son identifiant (ID)
     Game.findOne({ _id: req.params.gameId })
-      .populate('playersTermines')
-      .then(game => {
-        // Tirage aléatoire d'un joueur parmi les joueurs ayant terminé le jeu
-        const winner = game.playersTermines[Math.floor(Math.random() * game.playersTermines.length)];
-  
-        // Vérification si l'id du gagnant est différent de l'id précédent dans le tableau playersRandomWinner
-        const lastWinnerId = game.playersRandomWinner.length > 0 ? game.playersRandomWinner[game.playersRandomWinner.length - 1].toString() : null;
-        if (lastWinnerId !== winner._id.toString()) {
-          // Ajout de l'id du gagnant à la liste des joueurs tirés au sort
-          game.playersRandomWinner.push({ id: winner._id, date: new Date() });
-        }
-  
-        // Enregistrement des modifications dans la base de données
-        game.save()
-          .then(() => {
-            // Récupération des objets utilisateur des gagnants
-            const winners = game.playersRandomWinner.map(async player => {
-              const user = await User.findById(player.id);
-              return user;
-            });
+        .populate('playersTermines')
+        .then(game => {
+            // Tirage aléatoire d'un joueur parmi les joueurs ayant terminé le jeu
+            const winner = game.playersTermines[Math.floor(Math.random() * game.playersTermines.length)];
 
-            // Envoi de la réponse avec les objets utilisateur des gagnants
-            Promise.all(winners)
-              .then(winnersData => {
-                res.status(200).json({ winners: winnersData, playersRandomWinner: game.playersRandomWinner });
-              })
-              .catch(error => res.status(500).json({ error }));
-          })
-          .catch(error => res.status(500).json({ error }));
-      })
-      .catch(error => res.status(404).json({ error }));
+            // Vérification si l'id du gagnant est différent de l'id précédent dans le tableau playersRandomWinner
+            const lastWinnerId = game.playersRandomWinner.length > 0 ? game.playersRandomWinner[game.playersRandomWinner.length - 1].toString() : null;
+            if (lastWinnerId !== winner._id.toString()) {
+                // Ajout de l'id du gagnant à la liste des joueurs tirés au sort
+                const options = {
+                    year: 'numeric',
+                    month: 'numeric',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: 'numeric',
+                    second: 'numeric',
+                    timeZone: 'Europe/Paris'
+                };
+
+                const formatter = new Intl.DateTimeFormat('fr-FR', options);
+
+                game.playersRandomWinner.push({ id: winner._id, date: formatter.format(new Date()) });
+            }
+
+            // Enregistrement des modifications dans la base de données
+            game.save()
+                .then(() => {
+                    // Récupération des objets utilisateur des gagnants
+                    const winners = game.playersRandomWinner.map(async player => {
+                        const user = await User.findById(player.id);
+                        return user;
+                    });
+
+                    // Envoi de la réponse avec les objets utilisateur des gagnants
+                    Promise.all(winners)
+                        .then(winnersData => {
+                            res.status(200).json({ winners: winnersData, playersRandomWinner: game.playersRandomWinner });
+                        })
+                        .catch(error => res.status(500).json({ error }));
+                })
+                .catch(error => res.status(500).json({ error }));
+        })
+        .catch(error => res.status(404).json({ error }));
 };
 
-  
+
