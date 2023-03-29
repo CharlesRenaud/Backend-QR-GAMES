@@ -60,6 +60,10 @@ const gameSchema = mongoose.Schema({
   playersRandomWinner: [{
     id : { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     date : {type: Date}
+  }],
+  visitorCommingFrom : [{
+    sourceName: { type: String },
+    sourceCount: { type: Number }
   }]
 });
 

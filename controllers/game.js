@@ -212,4 +212,33 @@ exports.getOneRandomWinner = (req, res, next) => {
       .catch(error => res.status(404).json({ error }));
 };
 
+
+exports.incrementSource = async (req, res, next) => {
+    const gameId = req.params.gameId;
+    const sourceName = req.body.sourceName;
+    
+    try {
+      // Recherche du jeu correspondant à l'ID
+      const game = await Game.findById(gameId);
+      
+      // Vérification si la source existe déjà dans le tableau visitors
+      const existingSource = game.visitors.find(visitor => visitor.sourceName === sourceName);
+      
+      // Si la source existe, incrémente son compteur
+      if (existingSource) {
+        existingSource.sourceCount++;
+      } else {
+        // Sinon, ajoute la nouvelle source au tableau visitors
+        game.visitors.push({ sourceName, sourceCount: 1 });
+      }
+      
+      // Sauvegarde du jeu mis à jour dans la base de données
+      await game.save();
+      
+      res.status(200).json({ message: 'Source incrémenté avec succès.' });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de l'incrémentation de la source." });
+    }
+  }
+
   
