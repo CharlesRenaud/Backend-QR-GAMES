@@ -229,7 +229,7 @@ exports.incrementSource = async (req, res, next) => {
         existingSource.sourceCount++;
       } else {
         // Sinon, ajoute la nouvelle source au tableau visitors avec un compteur à 1
-        game.visitors.push({ sourceName, sourceCount: 1 });
+        game.visitorCommingFrom.push({ sourceName, sourceCount: 1 });
       }
       
       // Sauvegarde du jeu mis à jour dans la base de données
