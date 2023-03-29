@@ -197,10 +197,13 @@ exports.getOneRandomWinner = (req, res, next) => {
                     second: 'numeric',
                     timeZone: 'Europe/Paris'
                 };
-
                 const formatter = new Intl.DateTimeFormat('fr-FR', options);
-
-                game.playersRandomWinner.push({ id: winner._id, date: new Date(Date.parse(formatter.format(new Date()))) });
+                const formattedDate = formatter.format(new Date());
+                console.log("Formatted date:", formattedDate);
+                const parsedDate = new Date(Date.parse(formattedDate));
+                console.log("Parsed date:", parsedDate);
+                game.playersRandomWinner.push({ id: winner._id, date: parsedDate });
+                
             }
 
             // Enregistrement des modifications dans la base de données
