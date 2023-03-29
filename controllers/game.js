@@ -1,4 +1,5 @@
 const Game = require('../models/game');
+const User = require('../models/user');
 const fs = require('fs');
 const MayaQrGenerator = require("./scripts/MayaQrGenerator")
 const path = require('path');
