@@ -56,7 +56,8 @@ const gameSchema = mongoose.Schema({
     id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     qrcodesFind: [{ type: String }],
   }],
-  playersTermines: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
+  playersTermines: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  playersRandomWinner: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 });
 
 // Application du plugin pour valider l'unicité des valeurs

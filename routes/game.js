@@ -19,11 +19,13 @@ router.get('/:id', gameCtrl.getOneGame);
 router.put('/:id', auth, multer, gameCtrl.modifyGames);
 // Définition d'une route pour supprimer un jeu
 router.delete('/:id', auth, gameCtrl.deleteGame);
-
+// Définition d'une route pour télécharger le zip des QrCodes
 router.get('/:gameId/:mediaId', auth, gameCtrl.getZip);
-
+// Définition d'une route pour tirer au sort un gagnant
 router.post('/:gameId/random/winner', auth, gameCtrl.getOneRandomWinner);
 
+// Définition d'une route pour incrémenter la source (Flyers/Affiche)
+router.post('/:gameId/random/winner', auth, gameCtrl.getOneRandomWinner);
 
 // Exportation du routeur pour les jeux
 module.exports = router;

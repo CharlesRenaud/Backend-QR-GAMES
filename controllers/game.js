@@ -183,8 +183,21 @@ exports.getOneRandomWinner = (req, res, next) => {
         // Tirage aléatoire d'un joueur parmi les joueurs ayant terminé le jeu
         const winner = game.playersTermines[Math.floor(Math.random() * game.playersTermines.length)];
   
-        res.status(200).json({ winner });
+        // Vérification si l'id du gagnant est différent de l'id précédent dans le tableau playersRandomWinner
+        const lastWinnerId = game.playersRandomWinner.length > 0 ? game.playersRandomWinner[game.playersRandomWinner.length - 1].toString() : null;
+        if (lastWinnerId !== winner._id.toString()) {
+          // Ajout de l'id du gagnant à la liste des joueurs tirés au sort
+          game.playersRandomWinner.push(winner._id);
+        }
+  
+        // Enregistrement des modifications dans la base de données
+        game.save()
+          .then(() => {
+            res.status(200).json({ winner, playersRandomWinner: game.playersRandomWinner });
+          })
+          .catch(error => res.status(500).json({ error }));
       })
       .catch(error => res.status(404).json({ error }));
   };
+  
   
