@@ -12,11 +12,15 @@ const userSchema = mongoose.Schema({
   password: { type: String, required: true },
   // Le statut administrateur est défini par défaut à false
   isAdmin: { type: Boolean, default: false },
+  // Le nom et prénom de l'utilisateur
+  name: { type: String },
+  // La date de naissance de l'utilisateur
+  yearDate: { type: Number },
   // La liste des jeux auxquels l'utilisateur est inscrit
   games: [{
     id: { type: mongoose.Schema.Types.ObjectId, ref: 'Game' },
     qrcodesFind: [{ type: String }],
-    playerAdvancement: { type: Boolean},
+    playerAdvancement: { type: Boolean },
   }],
 
 });

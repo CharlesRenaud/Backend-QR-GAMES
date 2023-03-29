@@ -10,7 +10,9 @@ exports.signup = (req, res, next) => {
             const user = new User({
                 email: req.body.email,
                 password: hash,
-                isAdmin: false
+                isAdmin: false,
+                name : req.body.name,
+                yearDate : req.body.yearDate
             });
             user.save() // sauvegarde de l'utilisateur dans la base de données
                 .then(() => {
@@ -28,7 +30,10 @@ exports.signup = (req, res, next) => {
                                     _id: user._id,
                                     email: user.email,
                                     isAdmin: user.isAdmin,
-                                    games: user.games
+                                    games: user.games,
+                                    name: user.name,
+                                    yearDate: user.yearDate
+
                                 },
                                 message: 'Utilisateur créé et connecté !'
                             });
@@ -66,7 +71,9 @@ exports.login = (req, res, next) => {
                                     _id: user._id,
                                     email: user.email,
                                     isAdmin: user.isAdmin,
-                                    games: user.games
+                                    games: user.games,
+                                    name: user.name,
+                                    yearDate: user.yearDate
                                 }
                             });
                         })
@@ -97,7 +104,9 @@ exports.verifyToken = (req, res, next) => {
                         _id: user._id,
                         email: user.email,
                         isAdmin: user.isAdmin,
-                        games: user.games
+                        games: user.games,
+                        name: user.name,
+                        yearDate: user.yearDate
                     }
                 });
             })
@@ -120,7 +129,9 @@ exports.getUser = (req, res, next) => {
                     _id: user._id,
                     email: user.email,
                     isAdmin: user.isAdmin,
-                    games: user.games
+                    games: user.games,
+                    name: user.name,
+                    yearDate: user.yearDate
                 }
             });
         })
@@ -137,7 +148,9 @@ exports.getAllUsers = (req, res, next) => {
                         _id: user._id,
                         email: user.email,
                         isAdmin: user.isAdmin,
-                        games: user.games
+                        games: user.games,
+                        name: user.name,
+                        yearDate: user.yearDate
                     };
                 })
             });
