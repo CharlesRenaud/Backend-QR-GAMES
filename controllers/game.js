@@ -222,7 +222,7 @@ exports.incrementSource = async (req, res, next) => {
       const game = await Game.findById(gameId);
       
       // Vérification si la source existe déjà dans le tableau visitors
-      const existingSource = game.visitors.find(visitor => visitor.sourceName === sourceName);
+      const existingSource = game.visitorCommingFrom.find(visitor => visitor.sourceName === sourceName);
       
       // Si la source existe, incrémente son compteur
       if (existingSource) {
