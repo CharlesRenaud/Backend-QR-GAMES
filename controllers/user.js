@@ -13,11 +13,33 @@ exports.signup = (req, res, next) => {
                 isAdmin: false
             });
             user.save() // sauvegarde de l'utilisateur dans la base de données
-                .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
+                .then(() => {
+                    // Connexion automatique de l'utilisateur après l'inscription
+                    User.findById(user._id)
+                        .then(user => {
+                            res.status(201).json({
+                                userId: user._id,
+                                token: jwt.sign(
+                                    { userId: user._id },
+                                    'RANDOM_TOKEN_SECRET',
+                                    { expiresIn: '24h' }
+                                ),
+                                user: {
+                                    _id: user._id,
+                                    email: user.email,
+                                    isAdmin: user.isAdmin,
+                                    games: user.games
+                                },
+                                message: 'Utilisateur créé et connecté !'
+                            });
+                        })
+                        .catch(error => res.status(500).json({ error }));
+                })
                 .catch(error => res.status(400).json({ error }));
         })
         .catch(error => res.status(500).json({ error }));
 };
+
 
 
 exports.login = (req, res, next) => {
