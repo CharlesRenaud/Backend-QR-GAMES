@@ -178,6 +178,7 @@ exports.getZip = (req, res, next) => {
 exports.getOneRandomWinner = (req, res, next) => {
     // Recherche du jeu par son identifiant (ID)
     Game.findOne({ _id: req.params.id })
+    console.log(_id)
       .populate('playersTermines')
       .then(game => {
         // Tirage aléatoire d'un joueur parmi les joueurs ayant terminé le jeu

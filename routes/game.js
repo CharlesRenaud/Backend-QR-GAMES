@@ -22,7 +22,7 @@ router.delete('/:id', auth, gameCtrl.deleteGame);
 
 router.get('/:gameId/:mediaId', auth, gameCtrl.getZip);
 
-router.get('/:gameId/random/winner', gameCtrl.getOneRandomWinner);
+router.post('/:gameId/random/winner', auth, gameCtrl.getOneRandomWinner);
 
 
 // Exportation du routeur pour les jeux
