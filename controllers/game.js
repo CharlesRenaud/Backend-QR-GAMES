@@ -195,8 +195,8 @@ exports.getOneRandomWinner = (req, res, next) => {
         game.save()
           .then(() => {
             // Récupération des objets utilisateur des gagnants
-            const winners = game.playersRandomWinner.map(async playerId => {
-              const user = await User.findById(playerId);
+            const winners = game.playersRandomWinner.map(async player => {
+              const user = await User.findById(player.id);
               return user;
             });
 
