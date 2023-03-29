@@ -189,30 +189,21 @@ exports.getOneRandomWinner = (req, res, next) => {
             if (lastWinnerId !== winner._id.toString()) {
                 // Ajout de l'id du gagnant à la liste des joueurs tirés au sort
                 const options = {
-                    year: 'numeric',
-                    month: 'numeric',
-                    day: 'numeric',
-                    hour: 'numeric',
-                    minute: 'numeric',
-                    second: 'numeric',
-                    timeZone: 'Europe/Paris'
+                  year: 'numeric',
+                  month: 'numeric',
+                  day: 'numeric',
+                  hour: 'numeric',
+                  minute: 'numeric',
+                  second: 'numeric',
+                  timeZone: 'Europe/Paris'
                 };
                 const formatter = new Intl.DateTimeFormat('fr-FR', options);
-                const formattedDate = formatter.format(new Date());
-                console.log("Formatted date:", formattedDate);
-                const utcDate = Date.UTC(
-                    new Date().getFullYear(),
-                    new Date().getMonth(),
-                    new Date().getDate(),
-                    new Date().getHours(),
-                    new Date().getMinutes(),
-                    new Date().getSeconds()
-                );
-                const parsedDate = new Date(utcDate);
-                console.log("Parsed date:", parsedDate);
-                game.playersRandomWinner.push({ id: winner._id, date: parsedDate });
-                
-            }
+                const now = new Date();
+                const formattedDate = formatter.format(now);
+                const isoDate = now.toISOString();
+                game.playersRandomWinner.push({ id: winner._id, date: formattedDate, isoDate });
+              }
+              
 
             // Enregistrement des modifications dans la base de données
             game.save()
