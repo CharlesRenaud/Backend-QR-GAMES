@@ -175,8 +175,7 @@ exports.getZip = (req, res, next) => {
   };
   
   
-// Récupération d'un gagnant parmi les joueurs ayant terminé le jeu
-exports.getOneRandomWinner = (req, res, next) => {
+  exports.getOneRandomWinner = (req, res, next) => {
     // Recherche du jeu par son identifiant (ID)
     Game.findOne({ _id: req.params.gameId })
       .populate('playersTermines')
@@ -185,21 +184,22 @@ exports.getOneRandomWinner = (req, res, next) => {
         const winner = game.playersTermines[Math.floor(Math.random() * game.playersTermines.length)];
   
         // Vérification si l'id du gagnant est différent de l'id précédent dans le tableau playersRandomWinner
-        const lastWinnerId = game.playersRandomWinner.length > 0 ? game.playersRandomWinner[game.playersRandomWinner.length - 1].toString() : null;
+        const lastWinnerId = game.playersRandomWinner.length > 0 ? game.playersRandomWinner[game.playersRandomWinner.length - 1].id.toString() : null;
         if (lastWinnerId !== winner._id.toString()) {
-          // Ajout de l'id du gagnant à la liste des joueurs tirés au sort
-          game.playersRandomWinner.push(winner._id);
+          // Ajout de l'id et de la date du gagnant à la liste des joueurs tirés au sort
+          const now = new Date();
+          game.playersRandomWinner.push({ id: winner._id, date: now });
         }
   
         // Enregistrement des modifications dans la base de données
         game.save()
           .then(() => {
             // Récupération des objets utilisateur des gagnants
-            const winners = game.playersRandomWinner.map(async playerId => {
-              const user = await User.findById(playerId);
-              return user;
+            const winners = game.playersRandomWinner.map(async player => {
+              const user = await User.findById(player.id);
+              return { ...player.toObject(), email: user.email }; // ajout de l'email de l'utilisateur
             });
-
+  
             // Envoi de la réponse avec les objets utilisateur des gagnants
             Promise.all(winners)
               .then(winnersData => {
@@ -210,6 +210,6 @@ exports.getOneRandomWinner = (req, res, next) => {
           .catch(error => res.status(500).json({ error }));
       })
       .catch(error => res.status(404).json({ error }));
-};
-
+  };
+  
   
