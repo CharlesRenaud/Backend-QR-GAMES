@@ -193,11 +193,22 @@ exports.getOneRandomWinner = (req, res, next) => {
         // Enregistrement des modifications dans la base de données
         game.save()
           .then(() => {
-            res.status(200).json({ winner, playersRandomWinner: game.playersRandomWinner });
+            // Récupération des objets utilisateur des gagnants
+            const winners = game.playersRandomWinner.map(async playerId => {
+              const user = await User.findById(playerId);
+              return user;
+            });
+
+            // Envoi de la réponse avec les objets utilisateur des gagnants
+            Promise.all(winners)
+              .then(winnersData => {
+                res.status(200).json({ winners: winnersData, playersRandomWinner: game.playersRandomWinner });
+              })
+              .catch(error => res.status(500).json({ error }));
           })
           .catch(error => res.status(500).json({ error }));
       })
       .catch(error => res.status(404).json({ error }));
-  };
-  
+};
+
   
