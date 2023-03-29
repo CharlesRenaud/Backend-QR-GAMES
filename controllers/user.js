@@ -205,9 +205,9 @@ exports.updateUserGameInfo = async (req, res, next) => {
             if (!player.qrcodesFind.includes(qrCode)) {
               player.qrcodesFind.push(qrCode);
             }
-            if(player.qrcodesFind.length === 4) {
+            if (!gameDoc.playersTermines.includes(userId) && player.qrcodesFind.length === 4) {
                 gameDoc.playersTermines.push(userId);
-            }
+              }
           }
           await gameDoc.save();
 
