@@ -14,7 +14,7 @@ const scriptRoutes = require('./routes/scripts');
 const app = express();
 
 // Connexion à la base de données MongoDB
-mongoose.connect(`mongodb+srv://crenaud:xK1wJmBNLKYN7wa1@serverlessinstance0.xagzb.mongodb.net/?retryWrites=true&w=majority`, {
+mongoose.connect(`URL_DB`, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     keepAlive: true
